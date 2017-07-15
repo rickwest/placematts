@@ -30,28 +30,28 @@ class Image {
     /**
      * @var string
      *
-     * @ORM\Column(name="subject", type="string", length=255, unique=false, nullable=true)
+     * @ORM\Column(name="subject", type="string", length=100, unique=false, nullable=true)
      */
     private $subject;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="page_url", type="string", length=255, unique=true, nullable=true)
+     * @ORM\Column(name="page_url", type="string", length=510, unique=false, nullable=true)
      */
     private $pageUrl;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="file_url", type="string", length=255, unique=true, nullable=true)
+     * @ORM\Column(name="file_url", type="string", length=510, unique=false, nullable=true)
      */
     private $fileUrl;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="attribution", type="string", length=255, unique=true, nullable=true)
+     * @ORM\Column(name="attribution", type="string", length=510, unique=false, nullable=true)
      */
     private $attribution;
 
