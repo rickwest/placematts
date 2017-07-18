@@ -16,39 +16,68 @@ class DefaultController extends Controller
     /**
      * @Route("/", name="homepage")
      */
-    public function indexAction(Request $request)
-    {
-        // replace this example code with whatever you need
-        return $this->render('default/index.html.twig', [
-            'base_dir' => realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR,
-        ]);
+    public function indexAction(Request $request) {
+        return $this->render('default/index.html.twig');
+    }
+
+    /**
+     * @Route("/images", name="images")
+     */
+    public function imagesAction(Request $request) {
+        $images = $this->getDoctrine()
+            ->getRepository(Image::class)
+            ->findAll();
+
+        $imageList = [];
+        foreach ($images as $image) {
+            $imageList[] = $image;
+        }
+
+        return $this->render('default/images.html.twig', ['images' => $imageList]);
     }
 
     /**
      * @Route("/{width}/{height}", name="image",
      * requirements={"width": "[0-9]+", "height": "[0-9]+"})
+     * @param int $width
+     * @param int $height
+     * @param boolean $greyscale
+     * @return Response
      */
-    public function imageAction(Request $request, $width, $height) {
-
+    public function imageAction($width, $height, $greyscale = false) {
         /** @var Image $image */
-        $image = $this->getDoctrine()
+        $images = $this->getDoctrine()
             ->getRepository(Image::class)
-            ->findOneById(random_int(1, 4));
+            ->findAll();
 
-        if (!$image) {
-            throw $this->createNotFoundException('No image found');
+        if (!$images) {
+            throw $this->createNotFoundException('No images found');
         }
 
-        $file = new File(__DIR__ . '/../../../app/Resources/Images/' . $image->getFilename());
+        $image = $images[array_rand($images)];
 
-        $placeholder = (new ImageManager())
-            ->make($file)
-            ->fit($width, $height)
-            ->greyscale()
-            ->response('png');
+        $file = new File(__DIR__ . '/../../../app/Resources/Images/Matts/' . $image->getFilename());
+
+        $placeholder = (new ImageManager())->make($file);
+        $placeholder->fit($width, $height);
+
+        if ($greyscale) $placeholder->greyscale();
+
+        $placeholder->response('png');
 
         return new Response($placeholder, 200, [
             'Content-Type' => 'image/png'
         ]);
+    }
+
+    /**
+     * @Route("/g/{width}/{height}", name="greyscale",
+     * requirements={"width": "[0-9]+", "height": "[0-9]+"})
+     * @param $width
+     * @param $height
+     * @return Response
+     */
+    public function greyscaleAction($width, $height) {
+        return $this->imageAction($width, $height, true);
     }
 }
