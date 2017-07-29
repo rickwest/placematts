@@ -33,9 +33,18 @@ body {
 }
 
 .card {
-    padding: .75rem;
+    padding: 15px;
     border: 0;
+    min-height: 300px;
+    margin-bottom: 30px;
     max-height: 100%;
+}
+
+.card img {
+    height: 100%;
+}
+.card-xs {
+    min-height: 150px
 }
 
 .card-attr {
@@ -49,10 +58,6 @@ body {
 
 .card-attr > img {
     margin-bottom: .75rem;
-}
-
-.card-text {
-    font-size: 85%;
 }
 
 footer {
