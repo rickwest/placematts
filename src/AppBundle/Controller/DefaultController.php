@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\Cache\Simple\FilesystemCache;
 
 class DefaultController extends Controller
 {
@@ -45,25 +45,36 @@ class DefaultController extends Controller
      * @return Response
      */
     public function imageAction($width, $height, $greyscale = false) {
-        /** @var Image $image */
-        $images = $this->getDoctrine()
-            ->getRepository(Image::class)
-            ->findAll();
 
-        if (!$images) {
-            throw $this->createNotFoundException('No images found');
+        $cache = new FilesystemCache();
+
+        $cacheKey = $width.'-'.$height.'-'.$greyscale;
+
+        $placeholder = $cache->get($cacheKey);
+
+        if (!$placeholder) {
+            /** @var Image $image */
+            $images = $this->getDoctrine()
+                ->getRepository(Image::class)
+                ->findAll();
+
+            if (!$images) {
+                throw $this->createNotFoundException('No images found');
+            }
+
+            $image = $images[array_rand($images)];
+
+            $file = new File(__DIR__ . '/../../../app/Resources/Images/Matts/' . $image->getFilename());
+
+            $placeholder = (new ImageManager())->make($file);
+            $placeholder->fit($width, $height);
+
+            if ($greyscale) $placeholder->greyscale();
+
+            $placeholder->response('png');
+
+            $cache->set($cacheKey, $placeholder);
         }
-
-        $image = $images[array_rand($images)];
-
-        $file = new File(__DIR__ . '/../../../app/Resources/Images/Matts/' . $image->getFilename());
-
-        $placeholder = (new ImageManager())->make($file);
-        $placeholder->fit($width, $height);
-
-        if ($greyscale) $placeholder->greyscale();
-
-        $placeholder->response('png');
 
         return new Response($placeholder, 200, [
             'Content-Type' => 'image/png'
@@ -80,4 +91,6 @@ class DefaultController extends Controller
     public function greyscaleAction($width, $height) {
         return $this->imageAction($width, $height, true);
     }
+
+
 }
