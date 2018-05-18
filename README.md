@@ -1,4 +1,4 @@
-placeholder
+{placematts}
 ===========
 
-A Symfony project created on July 11, 2017, 9:56 pm.
+A placeholder image service. Inspired by https://placekitten.com/ 🐱, but instead of cat's, {placematts} has all your favourite Matt's. Think McConaughey, Damon and LeBlanc! 
